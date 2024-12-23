@@ -4,7 +4,7 @@ import random
 from flask import Flask, request, redirect, session, url_for
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
-from spotipy.cache_handler import FlaskSessionCacheHandler
+#from spotipy.cache_handler import FlaskSessionCacheHandler
 
 my_random_playlist_name = "Ron's Random Playlist"
 
@@ -22,13 +22,12 @@ with open('credentials.txt', 'r') as file:
 
 scope = 'playlist-modify-public user-library-read user-read-recently-played'
 
-cache_handler = FlaskSessionCacheHandler(session)
+#cache_handler = FlaskSessionCacheHandler(session)
 sp_oauth = SpotifyOAuth(
     client_id=client_id,
     client_secret=client_secret,
     redirect_uri=redirect_uri,
     scope=scope,
-    cache_handler=cache_handler,
     show_dialog=True
 )
 
@@ -46,21 +45,14 @@ def get_front_page_html():
 
 @app.route('/')
 def home():
-    if not sp_oauth.validate_token(cache_handler.get_cached_token()):
-        auth_url = sp_oauth.get_authorize_url()
-        return redirect(auth_url)
     return get_front_page_html()
 
 @app.route('/callback')
 def callback():
-    sp_oauth.get_access_token(request.args['code'])
     return redirect(url_for('home'))
 
 @app.route('/get_playlists')
 def get_playlists():
-    if not sp_oauth.validate_token(cache_handler.get_cached_token()):
-        auth_url = sp_oauth.get_authorize_url()
-        return redirect(auth_url)
     playlists = sp.current_user_playlists()
     playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in playlists['items']]
     playlists_html = '<br>'.join([f'{name}: {url}' for name, url in playlists_info])
@@ -105,15 +97,15 @@ def getMyPlaylist():
         offset = 0
         batch = sp.current_user_playlists(50,offset=offset)
         for playlist in batch['items']:
-            print("Playlist Name:" + playlist['name'])
+            #print("Playlist Name:" + playlist['name'])
             if playlist['name'] == my_random_playlist_name:
-                print('Found playlist')
+                #print('Found playlist')
                 return playlist
         if batch['next'] is None:
             break
         offset += len(batch['items'])
     # Playlist not found so create it
-    print('Playlist not Found creating new playlist')
+    #print('Playlist not Found creating new playlist')
     user_id = sp.me()['id']
     playlist = sp.user_playlist_create(user_id, my_random_playlist_name, public=True, description="This week's random songs")
     return playlist
@@ -121,18 +113,14 @@ def getMyPlaylist():
 
 @app.route('/make_liked_list')
 def make_liked_list():
-    if not sp_oauth.validate_token(cache_handler.get_cached_token()):
-        auth_url = sp_oauth.get_authorize_url()
-        print("Need to authenticate, returning redirect")
-        return redirect(auth_url)
-    print("authenticated, making the new list")
+    #print("authenticated, making the new list")
     liked_songs = getLikedSongs()
     random.shuffle(liked_songs)
     random_sublist=liked_songs[:50]
     user_id = sp.me()['id']
     playlist = getMyPlaylist()
     # Add selected tracks to the new playlist
-    print(random_sublist)
+    #print(random_sublist)
     track_id_list = [(song['track']['id']) for song in random_sublist]
     sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
     return make_song_list_html(random_sublist)
@@ -140,16 +128,8 @@ def make_liked_list():
 
 @app.route('/get_liked_songs')
 def get_liked_songs():
-    if not sp_oauth.validate_token(cache_handler.get_cached_token()):
-        auth_url = sp_oauth.get_authorize_url()
-        return redirect(auth_url)
     liked_songs = getLikedSongs()
     return make_song_list_html(liked_songs)
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
