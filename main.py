@@ -19,6 +19,7 @@ with open('credentials.txt', 'r') as file:
     client_id = lines[0].strip()
     client_secret = lines[1].strip()
     redirect_uri = lines[2].strip()
+    flask_host = lines[3].strip()
 
 scope = 'playlist-modify-public user-library-read user-read-recently-played'
 
@@ -147,5 +148,5 @@ def get_liked_songs():
     return get_menu_html() + "<h2>All Liked Songs</h2>" + make_song_list_html(liked_songs)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=flask_host,port=5000, debug=True)
 
