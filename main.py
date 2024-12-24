@@ -6,7 +6,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 #from spotipy.cache_handler import FlaskSessionCacheHandler
 
-my_random_playlist_name = "Ron's Random Playlist"
+my_random_playlist_name = "Ron's Random Playlist Test"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64);
@@ -92,13 +92,13 @@ def make_song_list_html(songs):
    songs_html += '</table>'
    return songs_html
 
-def getMyPlaylist():
+def getMyPlaylist(playlist_name):
     while True:
         offset = 0
         batch = sp.current_user_playlists(50,offset=offset)
         for playlist in batch['items']:
             #print("Playlist Name:" + playlist['name'])
-            if playlist['name'] == my_random_playlist_name:
+            if playlist['name'] == playlist_name:
                 #print('Found playlist')
                 return playlist
         if batch['next'] is None:
@@ -107,23 +107,33 @@ def getMyPlaylist():
     # Playlist not found so create it
     #print('Playlist not Found creating new playlist')
     user_id = sp.me()['id']
-    playlist = sp.user_playlist_create(user_id, my_random_playlist_name, public=True, description="This week's random songs")
+    playlist = sp.user_playlist_create(user_id, playlist_name, public=True, description="This week's random songs")
     return playlist
     
+def makePlaylist(user_id,liked_list,from_index,to_index):
+    sublist=liked_list[from_index:to_index]
+    playlist_name = my_random_playlist_name + "_" + str(from_index) + "-" + str(to_index)
+    playlist = getMyPlaylist(playlist_name)
+    # Add selected tracks to the new playlist
+    track_id_list = [(song['track']['id']) for song in sublist]
+    sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
+    return "<h2>" + playlist_name + "</h2>" + make_song_list_html(sublist) + "<br><br>"
+ 
 
 @app.route('/make_liked_list')
 def make_liked_list():
+    result = " "
     #print("authenticated, making the new list")
     liked_songs = getLikedSongs()
     random.shuffle(liked_songs)
-    random_sublist=liked_songs[:50]
     user_id = sp.me()['id']
-    playlist = getMyPlaylist()
-    # Add selected tracks to the new playlist
-    #print(random_sublist)
-    track_id_list = [(song['track']['id']) for song in random_sublist]
-    sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
-    return make_song_list_html(random_sublist)
+    # Make first 50 playlist
+    result += makePlaylist(user_id,liked_songs,1,50)
+    # Make second 50 playlist
+    result += makePlaylist(user_id,liked_songs,51,100)
+    # Make third 50 playlist
+    result += makePlaylist(user_id,liked_songs,101,151)
+    return result
     
 
 @app.route('/get_liked_songs')
