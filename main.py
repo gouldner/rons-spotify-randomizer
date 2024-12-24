@@ -6,7 +6,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 #from spotipy.cache_handler import FlaskSessionCacheHandler
 
-my_random_playlist_name = "Ron's Random Playlist Test"
+my_random_playlist_name = "Ron's Random Playlist"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64);
@@ -37,7 +37,7 @@ def get_front_page_html():
     html = "<h2>"
     html += "<ol>"
     html += "<li><a href=" + url_for("get_playlists") + ">Get Playlists</a></li>"
-    html += "<li><a href=" + url_for("make_liked_list") + ">Make (" + my_random_playlist_name + ") playlist</a></li>"
+    html += "<li><a href=" + url_for("make_liked_list") + ">Make (" + my_random_playlist_name + ") playlists</a></li>"
     html += "</ol>"
     html += "</h2>"
     return html
@@ -112,7 +112,7 @@ def getMyPlaylist(playlist_name):
     
 def makePlaylist(user_id,liked_list,from_index,to_index):
     sublist=liked_list[from_index:to_index]
-    playlist_name = my_random_playlist_name + "_" + str(from_index) + "-" + str(to_index)
+    playlist_name = my_random_playlist_name + " " + str(from_index) + "-" + str(to_index)
     playlist = getMyPlaylist(playlist_name)
     # Add selected tracks to the new playlist
     track_id_list = [(song['track']['id']) for song in sublist]
