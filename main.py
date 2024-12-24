@@ -34,12 +34,17 @@ sp_oauth = SpotifyOAuth(
 sp = Spotify(auth_manager=sp_oauth)
 
 def get_front_page_html():
-    html = "<h2>"
+    return get_menu_html()
+
+def get_menu_html():
+    html = "<h1>"
     html += "<ol>"
     html += "<li><a href=" + url_for("get_playlists") + ">Get Playlists</a></li>"
+    html += "<li><a href=" + url_for("get_liked_songs") + ">Get Liked Songs</a></li>"
     html += "<li><a href=" + url_for("make_liked_list") + ">Make (" + my_random_playlist_name + ") playlists</a></li>"
     html += "</ol>"
-    html += "</h2>"
+    html += "</h1>"
+    html += "<br><br>"
     return html
 
 
@@ -57,7 +62,7 @@ def get_playlists():
     playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in playlists['items']]
     playlists_html = '<br>'.join([f'{name}: {url}' for name, url in playlists_info])
 
-    return playlists_html
+    return get_menu_html() + "<h2>Current Playlists</h2>" + playlists_html
 
 def byName(track):
     return track['track']['name'].upper()
@@ -122,7 +127,7 @@ def makePlaylist(user_id,liked_list,from_index,to_index):
 
 @app.route('/make_liked_list')
 def make_liked_list():
-    result = " "
+    result = get_menu_html()
     #print("authenticated, making the new list")
     liked_songs = getLikedSongs()
     random.shuffle(liked_songs)
@@ -139,7 +144,7 @@ def make_liked_list():
 @app.route('/get_liked_songs')
 def get_liked_songs():
     liked_songs = getLikedSongs()
-    return make_song_list_html(liked_songs)
+    return get_menu_html() + "<h2>All Liked Songs</h2>" + make_song_list_html(liked_songs)
 
 if __name__ == '__main__':
     app.run(debug=True)
