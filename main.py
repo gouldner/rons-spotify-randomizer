@@ -57,10 +57,15 @@ def home():
 def callback():
     return redirect(url_for('home'))
 
+def byPlayListName(pl):
+    return pl['name'].upper()
+
 @app.route('/get_playlists')
 def get_playlists():
     playlists = sp.current_user_playlists()
-    playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in playlists['items']]
+    sortedList = playlists['items']
+    sortedList.sort(key=byPlayListName)
+    playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in sortedList]
     playlists_html = '<br>'.join([f'{name}: {url}' for name, url in playlists_info])
 
     return get_menu_html() + "<h2>Current Playlists</h2>" + playlists_html
@@ -118,7 +123,7 @@ def getMyPlaylist(playlist_name):
     
 def makePlaylist(user_id,liked_list,from_index,to_index):
     sublist=liked_list[from_index:to_index]
-    playlist_name = my_random_playlist_name + " " + str(from_index) + "-" + str(to_index)
+    playlist_name = my_random_playlist_name + " " + str(from_index).rjust(3,'0') + "-" + str(to_index).rjust(3,'0')
     playlist = getMyPlaylist(playlist_name)
     # Add selected tracks to the new playlist
     track_id_list = [(song['track']['id']) for song in sublist]
