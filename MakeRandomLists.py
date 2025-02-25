@@ -58,7 +58,7 @@ def getMyPlaylist(playlist_name):
     
 def makePlaylist(user_id,liked_list,from_index,to_index):
     sublist=liked_list[from_index:to_index]
-    playlist_name = my_random_playlist_name + " " + str(from_index) + "-" + str(to_index)
+    playlist_name = my_random_playlist_name + " " + str(from_index).rjust(3,'0') + "-" + str(to_index).rjust(3,'0')
     playlist = getMyPlaylist(playlist_name)
     # Add selected tracks to the new playlist
     track_id_list = [(song['track']['id']) for song in sublist]
