@@ -89,17 +89,27 @@ def getLikedSongs():
 
 def make_song_list_html(songs):
    songs_html = '<table>'
+   last_artist = " "
+   last_song = " "
    for song in songs:
         #print('Song:')
         #print(song)
         track_id=song['track']['id']
         track_name=song['track']['name']
         track_artist=song['track']['artists'][0]['name']
-        songs_html += '<tr><td>'
+        if track_name == last_song and track_artist == last_artist:
+            songs_html += '<tr><td style="color:red;">'
+        else:
+            songs_html += '<tr><td>'
         songs_html += track_name
-        songs_html += '</td><td>'
+        if track_name == last_song and track_artist == last_artist:
+            songs_html += '</td><td style="color:red;">'
+        else:
+            songs_html += '</td><td>'
         songs_html += track_artist
         songs_html += '</td></tr>'
+        last_artist = track_artist
+        last_song = track_name
    songs_html += '</table>'
    return songs_html
 
