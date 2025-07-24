@@ -160,7 +160,7 @@ def make_liked_list():
 @app.route('/get_liked_songs')
 def get_liked_songs():
     liked_songs = getLikedSongs()
-    return get_menu_html() + "<h2>All Liked Songs</h2>" + make_song_list_html(liked_songs)
+    return get_menu_html() + "<h2>All Liked Songs ("+ str(len(liked_songs)) +")</h2>" + make_song_list_html(liked_songs)
 
 if __name__ == '__main__':
     app.run(host=flask_host,port=5000, debug=True)
