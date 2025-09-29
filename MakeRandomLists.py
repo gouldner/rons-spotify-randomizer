@@ -4,7 +4,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 #from spotipy.cache_handler import FlaskSessionCacheHandler
 
-my_random_playlist_name = "Ron's Random Playlist"
+my_random_playlist_name = "My Random"
 
 with open('credentials.txt', 'r') as file:
     lines = file.readlines()
@@ -67,10 +67,10 @@ def makePlaylist(user_id,liked_list,from_index,to_index):
 liked_songs = getLikedSongs()
 random.shuffle(liked_songs)
 user_id = sp.me()['id']
-# Make first 50 playlist
-makePlaylist(user_id,liked_songs,1,50)
-# Make second 50 playlist
-makePlaylist(user_id,liked_songs,51,100)
 # Make third 50 playlist
 makePlaylist(user_id,liked_songs,101,151)
+# Make second 50 playlist
+makePlaylist(user_id,liked_songs,51,100)
+# Make first 50 playlist
+makePlaylist(user_id,liked_songs,1,50)
 print("Done")
