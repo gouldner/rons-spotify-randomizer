@@ -6,7 +6,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 #from spotipy.cache_handler import FlaskSessionCacheHandler
 
-my_random_playlist_name = "Ron's Random Playlist"
+my_random_playlist_name = "My Random"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64);
@@ -43,6 +43,7 @@ def get_menu_html():
     html += "<li><a href=" + url_for("get_playlists") + ">Get Playlists</a></li>"
     html += "<li><a href=" + url_for("get_liked_songs") + ">Get Liked Songs</a></li>"
     html += "<li><a href=" + url_for("make_liked_list") + ">Make (" + my_random_playlist_name + ") playlists</a></li>"
+    html += "<li><a href=" + url_for("display_my_random") + ">Display (" + my_random_playlist_name + ") playlists</a></li>"
     html += "</ol>"
     html += "</h1>"
     html += "<br><br>"
@@ -86,6 +87,15 @@ def getLikedSongs():
         offset += len(batch['items'])
     liked_songs.sort(key=byName)
     return liked_songs
+
+def getPlaylistSongs(playlist_name):
+    playlists = sp.current_user_playlists()
+    print(playlists)
+    for pl in playlists['items']:
+        if pl['name'] == playlist_name:
+            return sp.playlist_items(pl['uri'])['items']
+    # if list not found just return empty list
+    return []
 
 def make_song_list_html(songs):
    songs_html = '<table>'
@@ -140,6 +150,16 @@ def makePlaylist(user_id,liked_list,from_index,to_index):
     sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
     return "<h2>" + playlist_name + "</h2>" + make_song_list_html(sublist) + "<br><br>"
  
+@app.route('/display_my_random')
+def display_my_random():
+    rand1_name = my_random_playlist_name + " 001-050"
+    rand2_name = my_random_playlist_name + " 051-100"
+    rand3_name = my_random_playlist_name + " 101-150"
+    rand1 = getPlaylistSongs(rand1_name);
+    rand2 = getPlaylistSongs(rand2_name);
+    rand3 = getPlaylistSongs(rand3_name);
+    return get_menu_html() + "<h2>My Rand 001-050</h2>" + make_song_list_html(rand1) + "<h2>My Rand 051-100</h2>" + make_song_list_html(rand2) + "<h2>My Rand 101-150</h2>" + make_song_list_html(rand3)
+    
 
 @app.route('/make_liked_list')
 def make_liked_list():
@@ -148,12 +168,12 @@ def make_liked_list():
     liked_songs = getLikedSongs()
     random.shuffle(liked_songs)
     user_id = sp.me()['id']
-    # Make first 50 playlist
-    result += makePlaylist(user_id,liked_songs,1,50)
+    # Make third 50 playlist
+    result += makePlaylist(user_id,liked_songs,101,150)
     # Make second 50 playlist
     result += makePlaylist(user_id,liked_songs,51,100)
-    # Make third 50 playlist
-    result += makePlaylist(user_id,liked_songs,101,151)
+    # Make first 50 playlist
+    result += makePlaylist(user_id,liked_songs,1,50)
     return result
     
 
