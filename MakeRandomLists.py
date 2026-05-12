@@ -68,7 +68,7 @@ liked_songs = getLikedSongs()
 random.shuffle(liked_songs)
 user_id = sp.me()['id']
 # Make third 50 playlist
-makePlaylist(user_id,liked_songs,101,151)
+makePlaylist(user_id,liked_songs,101,150)
 # Make second 50 playlist
 makePlaylist(user_id,liked_songs,51,100)
 # Make first 50 playlist
