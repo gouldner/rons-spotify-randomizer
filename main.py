@@ -42,6 +42,7 @@ def get_menu_html():
     html += "<ol>"
     html += "<li><a href=" + url_for("get_playlists") + ">Get Playlists</a></li>"
     html += "<li><a href=" + url_for("get_liked_songs") + ">Get Liked Songs</a></li>"
+    html += "<li><a href=" + url_for("get_liked_artists") + ">Get Liked Artists</a></li>"
     html += "<li><a href=" + url_for("make_liked_list") + ">Make (" + my_random_playlist_name + ") playlists</a></li>"
     html += "<li><a href=" + url_for("display_my_random") + ">Display (" + my_random_playlist_name + ") playlists</a></li>"
     html += "</ol>"
@@ -73,6 +74,23 @@ def get_playlists():
 
 def byName(track):
     return track['track']['name'].upper()
+
+def byArtist(track):
+    return track['track']['artists'][0]['name'].upper()
+
+def getLikedArtists():
+    offset=0
+    liked_songs = []
+    # Get all liked songs
+    # Since max returned from /me/tracks = 50 (default is 20) we have to get all tracks using batches
+    while True:
+        batch = sp.current_user_saved_tracks(50,offset=offset)
+        liked_songs += batch['items']
+        if batch['next'] is None:
+            break
+        offset += len(batch['items'])
+    liked_songs.sort(key=byArtist)
+    return liked_songs
 
 def getLikedSongs():
     offset=0
@@ -181,6 +199,12 @@ def make_liked_list():
 def get_liked_songs():
     liked_songs = getLikedSongs()
     return get_menu_html() + "<h2>All Liked Songs ("+ str(len(liked_songs)) +")</h2>" + make_song_list_html(liked_songs)
+
+@app.route('/get_liked_artists')
+def get_liked_artists():
+    liked_songs = getLikedArtists()
+    return get_menu_html() + "<h2>All Liked Songs ("+ str(len(liked_songs)) +")</h2>" + make_song_list_html(liked_songs)
+
 
 if __name__ == '__main__':
     app.run(host=flask_host,port=5000, debug=True)
