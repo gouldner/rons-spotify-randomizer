@@ -64,6 +64,15 @@ def makePlaylist(user_id,liked_list,from_index,to_index):
     track_id_list = [(song['track']['id']) for song in sublist]
     sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
 
+def getPlaylistSongs(playlist_name):
+    playlists = sp.current_user_playlists()
+    #print(playlists)
+    for pl in playlists['items']:
+        if pl['name'] == playlist_name:
+            return sp.playlist_items(pl['uri'])['items']
+    # if list not found just return empty list
+    return []
+
 def make_song_list_html(songs):
    songs_html = '<table>'
    last_artist = " "
