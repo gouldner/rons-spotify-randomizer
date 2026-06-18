@@ -64,6 +64,41 @@ def makePlaylist(user_id,liked_list,from_index,to_index):
     track_id_list = [(song['track']['id']) for song in sublist]
     sp.user_playlist_replace_tracks(user_id, playlist['id'], track_id_list)
 
+def make_song_list_html(songs):
+   songs_html = '<table>'
+   last_artist = " "
+   last_song = " "
+   for song in songs:
+        #print('Song:')
+        #print(song)
+        track_id=song['track']['id']
+        track_name=song['track']['name']
+        track_artist=song['track']['artists'][0]['name']
+        if track_name == last_song and track_artist == last_artist:
+            songs_html += '<tr><td style="color:red;">'
+        else:
+            songs_html += '<tr><td>'
+        songs_html += track_name
+        if track_name == last_song and track_artist == last_artist:
+            songs_html += '</td><td style="color:red;">'
+        else:
+            songs_html += '</td><td>'
+        songs_html += track_artist
+        songs_html += '</td></tr>'
+        last_artist = track_artist
+        last_song = track_name
+   songs_html += '</table>'
+   return songs_html
+
+def display_my_random():
+    rand1_name = my_random_playlist_name + " 001-050"
+    rand2_name = my_random_playlist_name + " 051-100"
+    rand3_name = my_random_playlist_name + " 101-150"
+    rand1 = getPlaylistSongs(rand1_name);
+    rand2 = getPlaylistSongs(rand2_name);
+    rand3 = getPlaylistSongs(rand3_name);
+    return "<h2>My Rand 001-050</h2>" + make_song_list_html(rand1) + "<h2>My Rand 051-100</h2>" + make_song_list_html(rand2) + "<h2>My Rand 101-150</h2>" + make_song_list_html(rand3)
+
 liked_songs = getLikedSongs()
 random.shuffle(liked_songs)
 user_id = sp.me()['id']
@@ -73,4 +108,6 @@ makePlaylist(user_id,liked_songs,101,150)
 makePlaylist(user_id,liked_songs,51,100)
 # Make first 50 playlist
 makePlaylist(user_id,liked_songs,1,50)
-print("Done")
+
+result = display_my_random()
+print(result)
